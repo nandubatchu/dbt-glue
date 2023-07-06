@@ -36,7 +36,7 @@ class GlueConnectionManager(SQLConnectionManager):
         try:
             key = cls.get_thread_identifier()
             if not cls.GLUE_CONNECTIONS_BY_THREAD.get(key):
-                logger.debug(f"opening a new glue connection for thread : {key}")
+                logger.info(f"opening a new glue connection for thread : {key}")
                 cls.GLUE_CONNECTIONS_BY_THREAD[key]: GlueConnection = GlueConnection(credentials=credentials)
                 cls.GLUE_CONNECTIONS_BY_THREAD[key].connect()
             connection.state = GlueSessionState.OPEN
