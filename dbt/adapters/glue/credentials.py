@@ -14,7 +14,7 @@ class GlueCredentials(Credentials):
     location: Optional[str] = None
     extra_jars: Optional[str] = None
     idle_timeout: int = 10
-    query_timeout_in_seconds: int = 300
+    query_timeout_in_minutes: int = 300
     glue_version: Optional[str] = "3.0"
     security_configuration: Optional[str] = None
     connections: Optional[str] = None
@@ -27,6 +27,7 @@ class GlueCredentials(Credentials):
     seed_mode: Optional[str] = "overwrite"
     default_arguments: Optional[str] = None
     iceberg_glue_commit_lock_table: Optional[str] = "myGlueLockTable"
+    use_interactive_session_role_for_api_calls: bool = False
 
     @property
     def type(self):
@@ -34,7 +35,7 @@ class GlueCredentials(Credentials):
 
     @property
     def unique_field(self):
-        return self.host
+        return "glue"
 
     @classmethod
     def __pre_deserialize__(cls, data):
@@ -66,7 +67,7 @@ class GlueCredentials(Credentials):
             'location',
             'extra_jars',
             'idle_timeout',
-            'query_timeout_in_seconds',
+            'query_timeout_in_minutes',
             'glue_version',
             'security_configuration',
             'connections',

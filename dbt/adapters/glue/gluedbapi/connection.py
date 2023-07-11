@@ -69,7 +69,7 @@ class GlueConnection:
         additional_args["NumberOfWorkers"] = self.credentials.workers
         additional_args["WorkerType"] = self.credentials.worker_type
         additional_args["IdleTimeout"] = self.credentials.idle_timeout
-        additional_args["Timeout"] = self.credentials.query_timeout_in_seconds
+        additional_args["Timeout"] = self.credentials.query_timeout_in_minutes
         additional_args["RequestOrigin"] = 'dbt-glue'
         
         if (self.credentials.glue_version is not None):
@@ -187,9 +187,9 @@ class GlueConnection:
             if self.state not in [GlueSessionState.PROVISIONING, GlueSessionState.READY, GlueSessionState.RUNNING]:
                 return
             
-            logger.debug(f"[elapsed {elapsed}s - calling delete_session for {self.session_id} in {self.state} state")
+            logger.debug(f"[elapsed {elapsed}s - calling stop_session for {self.session_id} in {self.state} state")
             try:
-                self.client.delete_session(Id=self.session_id)
+                self.client.stop_session(Id=self.session_id)
             except Exception as e:
                 if "Session is in PROVISIONING status" in str(e):
                     logger.debug(f"session is not yet initialised - retrying to close")

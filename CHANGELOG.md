@@ -1,3 +1,17 @@
+## v1.5.2
+- fix the naming for query execution timeout
+- add assumeRole feature for AWS API Call
+- fix get response for insert_overwrite issue
+
+## v1.5.1
+- Replace delete session per stop session
+
+## v1.5.0
+- add compatibility with dbt 1.5
+- add multithreading
+- add hudi bulk insert shuffle parallelism
+- fix hudi snapshots without parameters
+
 ## v1.4.23
 - run pre_hooks before create tmp table
 
