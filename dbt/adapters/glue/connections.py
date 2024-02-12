@@ -12,6 +12,7 @@ import dbt
 from dbt.adapters.glue.gluedbapi import GlueConnection, GlueCursor
 from dbt.events import AdapterLogger
 from dbt.events.contextvars import get_node_info
+from copy import deepcopy
 
 logger = AdapterLogger("Glue")
 
@@ -55,7 +56,8 @@ class GlueConnectionManager(SQLConnectionManager):
 
             if not cls.GLUE_CONNECTIONS_BY_KEY.get(key):
                 logger.debug(f"opening a new glue connection for thread : {key}")
-                cls.GLUE_CONNECTIONS_BY_KEY[key]: GlueConnection = GlueConnection(**connection_args)
+                current_connection_args = deepcopy(connection_args)
+                cls.GLUE_CONNECTIONS_BY_KEY[key]: GlueConnection = GlueConnection(**current_connection_args)
             connection.state = GlueSessionState.OPEN
             connection.handle = cls.GLUE_CONNECTIONS_BY_KEY[key]
             return connection
