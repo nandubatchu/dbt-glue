@@ -25,7 +25,7 @@ class GlueSessionState:
 @dataclass
 class GlueConnection:
     _boto3_client_lock = threading.Lock()
-    _create_session_config = {}
+    _create_session_config = None
 
     def __init__(self, credentials: GlueCredentials, session_id_suffix: str = None, session_config_overrides = {}):
         self.credentials = credentials
@@ -35,6 +35,8 @@ class GlueConnection:
         self._client = None
         self._session = None
         self._state = None
+
+        self._create_session_config = {}
 
         for key in self.credentials._connection_keys():
             self._create_session_config[key] = self._session_config_overrides.get(key) or getattr(self.credentials, key)
