@@ -25,7 +25,7 @@ class GlueSessionState:
 @dataclass
 class GlueConnection:
     _boto3_client_lock = threading.Lock()
-    _create_session_config = {}
+    _create_session_config = None
 
     def __init__(self, credentials: GlueCredentials, session_id_suffix: str = None, session_config_overrides = {}):
         self.credentials = credentials
