@@ -733,7 +733,10 @@ SqlWrapper2.execute("""SELECT * FROM {target_relation.schema}.{target_relation.n
         try:
             session.cursor().execute(code)
         except DbtDatabaseError as e:
-            raise DbtDatabaseError(msg="GlueHudiMergeTableFailed") from e
+            # ensure's that the new exception being raised is not the same type as the original exception 
+            # and that there's no loop in the exception chaining thus avoiding self-suppresion error
+            raise DbtDatabaseError(msg="GlueHudiMergeTableFailed: " + str(e)) from e
+            #raise DbtDatabaseError(msg="GlueHudiMergeTableFailed") from e
         except Exception as e:
             logger.error(e)
     
