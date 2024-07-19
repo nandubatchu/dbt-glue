@@ -21,3 +21,4 @@ flaky
 dbt-tests-adapter==1.5.2
 mypy==1.4.1
 black==23.3.0
+backoff==2.2.1

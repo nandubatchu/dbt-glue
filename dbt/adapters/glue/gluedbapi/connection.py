@@ -10,6 +10,9 @@ import time
 import threading
 import uuid
 from dbt.events import AdapterLogger
+import backoff
+from botocore.exceptions import ClientError, EndpointConnectionError
+from datetime import datetime
 
 logger = AdapterLogger("Glue")
 
@@ -25,7 +28,7 @@ class GlueSessionState:
 @dataclass
 class GlueConnection:
     _boto3_client_lock = threading.Lock()
-    _create_session_config = None
+    _create_session_config = {}
 
     def __init__(self, credentials: GlueCredentials, session_id_suffix: str = None, session_config_overrides = {}):
         self.credentials = credentials
@@ -155,9 +158,23 @@ class GlueConnection:
         if not self._client:
             # refernce on why lock is required - https://stackoverflow.com/a/61943955/6034432
             with self._boto3_client_lock:
-                session = boto3.session.Session()
-                self._client = session.client("glue", region_name=self.credentials.region, config=config)
+                self._client = self._create_client_with_backoff(config)
         return self._client
+    
+    def log_backoff(details):
+        logger.info(f"Timestamp: {datetime.now().isoformat()}, Backing off: {details['wait']} seconds, Tries: {details['tries']}, Elapsed: {details['elapsed']} seconds")
+
+
+    @backoff.on_exception(
+        backoff.expo,
+        (ClientError, EndpointConnectionError),
+        max_tries=5,
+        jitter=backoff.full_jitter,
+        on_backoff=log_backoff
+    )
+    def _create_client_with_backoff(self, config):
+            session = boto3.session.Session()
+            return session.client("glue", region_name=self.credentials.region, config=config)
 
     def cancel_statement(self, statement_id):
         logger.debug("GlueConnection cancel_statement called")
