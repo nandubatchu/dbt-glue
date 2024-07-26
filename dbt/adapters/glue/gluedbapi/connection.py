@@ -151,7 +151,7 @@ class GlueConnection:
     def client(self):
         config = Config(
             retries={
-                'max_attempts': 50,
+                'max_attempts': 10,
                 'mode': 'adaptive'
             }
         )
