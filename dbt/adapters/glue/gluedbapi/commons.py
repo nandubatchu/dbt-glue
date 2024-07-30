@@ -1,4 +1,11 @@
 from waiter import wait
+from dbt.events import AdapterLogger
+
+logger = AdapterLogger("Glue")
+
+import backoff
+from botocore.exceptions import ClientError, EndpointConnectionError
+from datetime import datetime
 
 class GlueStatement:
     WAITING = "WAITING"
@@ -29,6 +36,17 @@ class GlueStatement:
             Id=self._statement_id
         )
 
+    def log_backoff(details):
+        logger.info(f"Timestamp: {datetime.now().isoformat()}, Backing off: {details['wait']} seconds, Tries: {details['tries']}, Elapsed: {details['elapsed']} seconds")
+
+
+    @backoff.on_exception(
+        backoff.expo,
+        (ClientError, EndpointConnectionError),
+        max_tries=5,
+        jitter=backoff.full_jitter,
+        on_backoff=log_backoff
+    )
     def execute(self):
         self._run_statement()
         for elasped in wait(1):

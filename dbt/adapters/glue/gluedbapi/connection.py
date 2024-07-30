@@ -158,23 +158,9 @@ class GlueConnection:
         if not self._client:
             # refernce on why lock is required - https://stackoverflow.com/a/61943955/6034432
             with self._boto3_client_lock:
-                self._client = self._create_client_with_backoff(config)
+                session = boto3.session.Session()
+                self._client = session.client("glue", region_name=self.credentials.region, config=config)
         return self._client
-    
-    def log_backoff(details):
-        logger.info(f"Timestamp: {datetime.now().isoformat()}, Backing off: {details['wait']} seconds, Tries: {details['tries']}, Elapsed: {details['elapsed']} seconds")
-
-
-    @backoff.on_exception(
-        backoff.expo,
-        (ClientError, EndpointConnectionError),
-        max_tries=5,
-        jitter=backoff.full_jitter,
-        on_backoff=log_backoff
-    )
-    def _create_client_with_backoff(self, config):
-            session = boto3.session.Session()
-            return session.client("glue", region_name=self.credentials.region, config=config)
 
     def cancel_statement(self, statement_id):
         logger.debug("GlueConnection cancel_statement called")
