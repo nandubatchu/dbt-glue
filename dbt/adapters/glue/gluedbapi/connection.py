@@ -25,7 +25,7 @@ class GlueSessionState:
 @dataclass
 class GlueConnection:
     _boto3_client_lock = threading.Lock()
-    _create_session_config = None
+    _create_session_config = {}
 
     def __init__(self, credentials: GlueCredentials, session_id_suffix: str = None, session_config_overrides = {}):
         self.credentials = credentials
@@ -148,7 +148,7 @@ class GlueConnection:
     def client(self):
         config = Config(
             retries={
-                'max_attempts': 50,
+                'max_attempts': 10,
                 'mode': 'adaptive'
             }
         )
