@@ -10,9 +10,6 @@ import time
 import threading
 import uuid
 from dbt.events import AdapterLogger
-import backoff
-from botocore.exceptions import ClientError, EndpointConnectionError
-from datetime import datetime
 
 logger = AdapterLogger("Glue")
 
